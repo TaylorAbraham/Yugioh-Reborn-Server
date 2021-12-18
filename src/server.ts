@@ -3,9 +3,12 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import cors from 'cors';
 
-import { getAllCards } from './cardUtils';
-
 dotenv.config();
+
+import { getAllCards, getBanlist } from './cardUtils';
+
+let cardDB;
+let banlist;
 
 /* SECTION: CORS */
 const allowedOrigins = ['https://localhost:8080'];
@@ -18,7 +21,12 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(morgan('tiny'));
 
-const cardDB = getAllCards();
+const setup = async (): Promise<void> => {
+  cardDB = await getAllCards();
+  banlist = await getBanlist(cardDB);
+};
+
+setup().catch(console.log);
 
 /* SECTION: ROUTES */
 app.get('/ping', (_req, res) => res.send('pong'));
