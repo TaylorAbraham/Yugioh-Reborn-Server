@@ -2,17 +2,28 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
-    node: true
+    node: true,
   },
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'prettier',
+  ],
+  parser: '@typescript-eslint/parser',
+  ignorePatterns: ['**/dist/tsc/*', '.eslintrc.js'],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
     },
     ecmaVersion: 12,
     sourceType: 'module',
+    tsconfigRootDir: __dirname,
+    project: ['./tsconfig.json'],
   },
-  plugins: ['prettier'],
+  root: true,
+  plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     // Allow unused variables if they are prefixed with an underscore
     '@typescript-eslint/no-unused-vars': [
