@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "npx tsc -w & nodemon --delay 500ms -- exec babel-node ./dist/server.js"
+  },
+  "engines": {
+    "node": "16.x"
+  }
+}
