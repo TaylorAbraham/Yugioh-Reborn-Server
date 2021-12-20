@@ -7,8 +7,10 @@ dotenv.config();
 
 import { getAllCards, getBanlist } from './cardUtils';
 
-let cardDB;
-let banlist;
+const PORT = process.env.PORT || 8080;
+
+let cardDB: CardDB;
+let banlist: BanlistItem[];
 
 /* SECTION: CORS */
 const allowedOrigins = ['https://localhost:8080'];
@@ -22,8 +24,10 @@ app.use(cors(corsOptions));
 app.use(morgan('tiny'));
 
 const setup = async (): Promise<void> => {
+  console.log(`Server is starting up on port ${PORT}...`);
   cardDB = await getAllCards();
   banlist = await getBanlist(cardDB);
+  console.log('Server finished starting up!');
 };
 
 setup().catch(console.log);
@@ -31,4 +35,4 @@ setup().catch(console.log);
 /* SECTION: ROUTES */
 app.get('/ping', (_req, res) => res.send('pong'));
 
-app.listen(process.env.PORT || 8080);
+app.listen(PORT);
