@@ -31,7 +31,7 @@ type CardImageInfo = {
   image_url_small: string;
 };
 
-type BanlistItem = {
+type FLListItem = {
   id: number;
   name: string;
   images: CardImageInfo[];

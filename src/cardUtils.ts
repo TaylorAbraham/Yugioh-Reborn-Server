@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 
 const cardURL = 'https://db.ygoprodeck.com/api/v7/cardinfo.php';
-const banlistRows = 'A2:E';
-const banlistURL = `https://sheets.googleapis.com/v4/spreadsheets/1zJcbfYTG8HF_p3HmJYi_2M7kQ9JhpdJ8UcbJZc5H4ZM/values/${banlistRows}?key=${
+const fllistRows = 'A2:E';
+const fllistURL = `https://sheets.googleapis.com/v4/spreadsheets/1zJcbfYTG8HF_p3HmJYi_2M7kQ9JhpdJ8UcbJZc5H4ZM/values/${fllistRows}?key=${
   process.env.GOOGLE_API_KEY || ''
 }`;
 
@@ -59,10 +59,10 @@ export const getAllCards = async (): Promise<CardDB> => {
   return cardDB;
 };
 
-export const getBanlist = async (cardDB: Record<string, Card>): Promise<BanlistItem[]> => {
-  const res = await fetch(banlistURL);
-  const banlist = (await res.json()) as GoogleSheetResponse;
-  const formattedBanlist: BanlistItem[] = banlist.values
+export const getFLList = async (cardDB: Record<string, Card>): Promise<FLListItem[]> => {
+  const res = await fetch(fllistURL);
+  const fllist = (await res.json()) as GoogleSheetResponse;
+  const formattedFLList: FLListItem[] = fllist.values
     .filter((val) => !!val[0])
     .map((val) => {
       const cardDBCard = cardDB[val[0]];
@@ -75,5 +75,5 @@ export const getBanlist = async (cardDB: Record<string, Card>): Promise<BanlistI
         notes: val[3],
       };
     });
-  return formattedBanlist;
+  return formattedFLList;
 };
