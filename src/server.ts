@@ -35,4 +35,6 @@ setup().catch(console.log);
 /* SECTION: ROUTES */
 app.get('/ping', (_req, res) => res.send('pong'));
 
+app.get('/banlist', (_req, res) => res.send(banlist));
+
 app.listen(PORT);
