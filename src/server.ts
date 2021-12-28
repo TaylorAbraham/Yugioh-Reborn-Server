@@ -14,7 +14,7 @@ let cardDB: CardDB;
 let fllist: FLListItem[];
 
 /* SECTION: CORS */
-const allowedOrigins = ['https://localhost:8080'];
+const allowedOrigins = ['https://ygo-reborn.xyz', 'https://localhost:3000'];
 const corsOptions = {
   origin: allowedOrigins,
 };
