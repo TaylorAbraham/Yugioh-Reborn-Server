@@ -11,10 +11,10 @@ const PORT = process.env.PORT || 8080;
 let startingUp = true;
 
 let cardDB: CardDB;
-let fllist: FLListItem[];
+let fllist: FLList;
 
 /* SECTION: CORS */
-const allowedOrigins = ['https://ygo-reborn.xyz', 'https://localhost:3000'];
+const allowedOrigins = ['https://ygo-reborn.xyz', 'http://localhost:3000'];
 const corsOptions = {
   origin: allowedOrigins,
 };

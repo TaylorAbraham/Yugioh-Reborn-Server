@@ -59,14 +59,15 @@ export const getAllCards = async (): Promise<CardDB> => {
   return cardDB;
 };
 
-export const getFLList = async (cardDB: Record<string, Card>): Promise<FLListItem[]> => {
+export const getFLList = async (cardDB: Record<string, Card>): Promise<FLList> => {
   const res = await fetch(fllistURL);
   const fllist = (await res.json()) as GoogleSheetResponse;
-  const formattedFLList: FLListItem[] = fllist.values
+  const formattedFLList: FLList = { forbidden: [], limited: [], semiLimited: [], unlimited: [] };
+  fllist.values
     .filter((val) => !!val[0])
     .map((val) => {
       const cardDBCard = cardDB[val[0]];
-      return {
+      const cardObj = {
         id: cardDBCard.id,
         name: val[0],
         images: cardDB[val[0]].images,
@@ -74,6 +75,20 @@ export const getFLList = async (cardDB: Record<string, Card>): Promise<FLListIte
         remark: val[2],
         notes: val[3],
       };
+      switch (val[1].toLowerCase()) {
+        case 'forbidden':
+          formattedFLList.forbidden.push(cardObj);
+          break;
+        case 'limited':
+          formattedFLList.limited.push(cardObj);
+          break;
+        case 'semi-limited':
+          formattedFLList.semiLimited.push(cardObj);
+          break;
+        case 'unlimited':
+          formattedFLList.unlimited.push(cardObj);
+          break;
+      }
     });
   return formattedFLList;
 };

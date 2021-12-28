@@ -39,3 +39,10 @@ type FLListItem = {
   remark: string;
   notes: string;
 };
+
+type FLList = {
+  forbidden: FLListItem[];
+  limited: FLListItem[];
+  semiLimited: FLListItem[];
+  unlimited: FLListItem[];
+};
