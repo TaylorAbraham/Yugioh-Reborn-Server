@@ -40,6 +40,7 @@ export const getAllCards = async (): Promise<CardDB> => {
       ...db,
       [card.name]: {
         id: card.id,
+        name: card.name,
         type: card.type,
         desc: card.desc,
         atk: card.atk,
