@@ -33,8 +33,7 @@ type CardImageInfo = {
 
 type FLListItem = {
   id: number;
-  name: string;
-  images: CardImageInfo[];
+  card: Card;
   legality: string;
   remark: string;
   notes: string;

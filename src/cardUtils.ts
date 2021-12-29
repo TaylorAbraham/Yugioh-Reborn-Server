@@ -69,8 +69,7 @@ export const getFLList = async (cardDB: Record<string, Card>): Promise<FLList> =
       const cardDBCard = cardDB[val[0]];
       const cardObj = {
         id: cardDBCard.id,
-        name: val[0],
-        images: cardDB[val[0]].images,
+        card: cardDBCard,
         legality: val[1],
         remark: val[2],
         notes: val[3],
