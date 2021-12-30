@@ -150,6 +150,7 @@ export const createCardDB = async (
         }
       }
       console.log('[STARTUP] Done!');
+
       console.log('[STARTUP] Generating FLList...');
       flListJSON.values
         .filter((row) => !!row[0])
@@ -181,6 +182,7 @@ export const createCardDB = async (
           }
         });
       console.log('[STARTUP] Done!');
+
       console.log('[STARTUP] Generating Add List...');
       addListJSON.values
         .filter((row) => !!row[0])

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -42,16 +42,36 @@ setup().catch(console.log);
 /* SECTION: ROUTES */
 app.get('/ping', (_req, res) => res.send('pong'));
 
+const sendStartupError = (res: Response): void => {
+  res.status(500).send({
+    error: {
+      msg: 'Server has not finished started up.',
+      type: ERRORS.SERVER_NOT_STARTED,
+    },
+  });
+};
+
+app.get('/carddb', (_req, res) => {
+  if (startingUp) {
+    sendStartupError(res);
+  } else {
+    res.send(cardDB);
+  }
+});
+
 app.get('/fllist', (_req, res) => {
   if (startingUp) {
-    res.status(500).send({
-      error: {
-        msg: 'Server has not finished started up.',
-        type: ERRORS.SERVER_NOT_STARTED,
-      },
-    });
+    sendStartupError(res);
   } else {
     res.send(flList);
+  }
+});
+
+app.get('/addlist', (_req, res) => {
+  if (startingUp) {
+    sendStartupError(res);
+  } else {
+    res.send(addList);
   }
 });
 
