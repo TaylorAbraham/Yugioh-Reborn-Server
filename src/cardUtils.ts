@@ -34,15 +34,22 @@ type GoogleSheetResponse = {
 export const createCardDB = async (
   failedRequestCount = 0,
 ): Promise<{ cardDB: CardDB; fllist: FLList }> => {
+  console.log('[STARTUP] Fetching from YGOPRO API and Google Sheets...');
   const cardFetch = fetch(cardURL);
   const flFetch = fetch(fllistURL);
   const { cardDB: tempCardDB, fllist: tempFLList } = await Promise.all([cardFetch, flFetch])
     .then(([cardRes, flRes]) => {
+      console.log('[STARTUP] Done!');
+      console.log('[STARTUP] Getting JSON from responses...');
       const cardJSON = cardRes.json() as Promise<{ data: YGOPROAPICard[] }>;
       const flJSON = flRes.json() as Promise<GoogleSheetResponse>;
+      console.log('[STARTUP] Done!');
       return Promise.all([cardJSON, flJSON]);
     })
     .then(([cardJSON, flJSON]) => {
+      console.log(`[DEBUG]: cardJSON.data ${JSON.stringify(cardJSON.data)}`);
+      console.log(`[DEBUG]: flJSON ${JSON.stringify(flJSON)}`);
+      console.log('[STARTUP] Generating card DB...');
       const tempCardDB: CardDB = {};
       const tempFLList: FLList = { forbidden: [], limited: [], semiLimited: [], unlimited: [] };
       for (let i = 0; i < cardJSON.data.length; i++) {
@@ -67,6 +74,8 @@ export const createCardDB = async (
           legality: LEGALITY.UNLIMITED,
         };
       }
+      console.log('[STARTUP] Done!');
+      console.log('[STARTUP] Generating FLList...');
       flJSON.values
         .filter((val) => !!val[0])
         .map((val) => {
@@ -93,6 +102,7 @@ export const createCardDB = async (
               break;
           }
         });
+      console.log('[STARTUP] Done!');
       return { cardDB: tempCardDB, fllist: tempFLList };
     })
     .catch((err) => {
