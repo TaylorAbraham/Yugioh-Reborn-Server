@@ -47,6 +47,10 @@ export const createCardDB = async (
   failedRequestCount = 0,
 ): Promise<{ cardDB: CardDB; fllist: FLList }> => {
   console.log('[STARTUP] Fetching from YGOPRO API and Google Sheets...');
+  if (!process.env.GOOGLE_API_KEY) {
+    console.error('[FATAL] GOOGLE_API_KEY is not set.');
+    process.exit(1);
+  }
   const cardFetch = fetch(cardURL);
   const flFetch = fetch(fllistURL);
   const { cardDB: tempCardDB, fllist: tempFLList } = await Promise.all([cardFetch, flFetch])
@@ -121,7 +125,7 @@ export const createCardDB = async (
       return { cardDB: tempCardDB, fllist: tempFLList };
     })
     .catch((err) => {
-      console.error(err);
+      console.error(`[ERROR] ${err}`);
       if (failedRequestCount + 1 >= MAX_REQUEST_ATTEMPTS) {
         console.error(
           `[FATAL]: Exceeded the maximum number of ${MAX_REQUEST_ATTEMPTS} API call attempts for Google Sheets/YGOPRO API.`,
