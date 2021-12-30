@@ -47,7 +47,6 @@ export const createCardDB = async (
       return Promise.all([cardJSON, flJSON]);
     })
     .then(([cardJSON, flJSON]) => {
-      console.log(`[DEBUG]: cardJSON.data ${JSON.stringify(cardJSON.data)}`);
       console.log(`[DEBUG]: flJSON ${JSON.stringify(flJSON)}`);
       console.log('[STARTUP] Generating card DB...');
       const tempCardDB: CardDB = {};
