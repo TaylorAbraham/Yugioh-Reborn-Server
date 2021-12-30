@@ -25,10 +25,22 @@ type YGOPROAPICard = {
   card_images: CardImageInfo[];
 };
 
-type GoogleSheetResponse = {
+type GoogleSheetSuccess = {
   majorDimension: string;
   range: string;
   values: string[][];
+};
+type GoogleSheetError = {
+  error: {
+    code: number;
+    message: string;
+    status: string;
+  };
+};
+type GoogleSheetResponse = GoogleSheetSuccess | GoogleSheetError;
+// Custom type guard
+const isSheetsError = (json: GoogleSheetResponse): json is GoogleSheetError => {
+  return (json as GoogleSheetError).error !== undefined;
 };
 
 export const createCardDB = async (
@@ -49,6 +61,10 @@ export const createCardDB = async (
     .then(([cardJSON, flJSON]) => {
       console.log(`[DEBUG]: flJSON ${JSON.stringify(flJSON)}`);
       console.log('[STARTUP] Generating card DB...');
+      if (isSheetsError(flJSON)) {
+        throw new Error(flJSON.error.message);
+      }
+
       const tempCardDB: CardDB = {};
       const tempFLList: FLList = { forbidden: [], limited: [], semiLimited: [], unlimited: [] };
       for (let i = 0; i < cardJSON.data.length; i++) {
