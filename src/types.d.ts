@@ -47,3 +47,13 @@ type FLList = {
   semiLimited: FLListItem[];
   unlimited: FLListItem[];
 };
+
+type AddListItem = {
+  id: number;
+  card: Card;
+  setCode: string;
+  releaseDate: string;
+  notes?: string;
+};
+
+type AddList = AddListItem[];

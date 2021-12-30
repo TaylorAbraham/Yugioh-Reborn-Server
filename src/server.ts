@@ -13,7 +13,8 @@ let startingUp = true;
 const startTime = Date.now();
 
 let cardDB: CardDB;
-let fllist: FLList;
+let flList: FLList;
+let addList: AddList;
 
 /* SECTION: CORS */
 const allowedOrigins = ['https://ygo-reborn.xyz', 'http://localhost:3000'];
@@ -30,7 +31,8 @@ const setup = async (): Promise<void> => {
   console.log(`Server is starting up on port ${PORT}...`);
   const createdVals = await createCardDB();
   cardDB = createdVals.cardDB;
-  fllist = createdVals.fllist;
+  flList = createdVals.flList;
+  addList = createdVals.addList;
   startingUp = false;
   console.log(`Server finished starting up! Took ${(Date.now() - startTime) / 1000} seconds.`);
 };
@@ -49,7 +51,7 @@ app.get('/fllist', (_req, res) => {
       },
     });
   } else {
-    res.send(fllist);
+    res.send(flList);
   }
 });
 
