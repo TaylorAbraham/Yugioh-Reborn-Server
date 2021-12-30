@@ -9,6 +9,7 @@ import { getAllCards, getFLList } from './cardUtils';
 
 const PORT = process.env.PORT || 8080;
 let startingUp = true;
+const startTime = Date.now();
 
 let cardDB: CardDB;
 let fllist: FLList;
@@ -29,7 +30,7 @@ const setup = async (): Promise<void> => {
   cardDB = await getAllCards();
   fllist = await getFLList(cardDB);
   startingUp = false;
-  console.log('Server finished starting up!');
+  console.log(`Server finished starting up! Took ${(Date.now() - startTime) / 1000} seconds.`);
 };
 
 setup().catch(console.log);
