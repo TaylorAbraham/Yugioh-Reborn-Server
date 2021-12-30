@@ -25,6 +25,8 @@ module.exports = {
   root: true,
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
+    // This isn't frontend code :P
+    'no-debugger': 'error',
     // Allow unused variables if they are prefixed with an underscore
     '@typescript-eslint/no-unused-vars': [
       'warn',

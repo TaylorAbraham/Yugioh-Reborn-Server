@@ -14,6 +14,7 @@ type Card = {
   archetype?: string;
   sets: CardSetInfo[];
   images: CardImageInfo[];
+  legality: LEGALITY;
 };
 
 type CardDB = Record<string, Card>;
