@@ -51,6 +51,18 @@ const sendStartupError = (res: Response): void => {
   });
 };
 
+app.get('/allcardinfo', (_req, res) => {
+  if (startingUp) {
+    sendStartupError(res);
+  } else {
+    res.send({
+      cardDB,
+      flList,
+      addList,
+    });
+  }
+});
+
 app.get('/carddb', (_req, res) => {
   if (startingUp) {
     sendStartupError(res);
