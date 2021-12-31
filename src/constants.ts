@@ -229,6 +229,7 @@ export const LEGAL_SETS: Record<string, boolean> = {
   WB01: true,
   // Other promos
   ZTIN: true,
+  PRC1: true,
   EM1: true,
   PT1: true,
   PT02: true,
