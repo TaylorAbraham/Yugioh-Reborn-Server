@@ -56,4 +56,9 @@ type AddListItem = {
   notes?: string;
 };
 
-type AddList = AddListItem[];
+type AddListGroup = {
+  name: string;
+  cards: AddListItem[];
+};
+
+type AddList = AddListGroup[];

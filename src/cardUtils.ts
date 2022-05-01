@@ -184,18 +184,32 @@ export const createCardDB = async (
       console.log('[STARTUP] Done!');
 
       console.log('[STARTUP] Generating Add List...');
-      addListJSON.values
-        .filter((row) => !!row[0])
-        .map((row) => {
+      let newSection = true;
+      let currAddListGroup: AddListGroup = { name: '', cards: [] };
+      addListJSON.values.map((row) => {
+        if (newSection) {
+          newSection = false;
+          currAddListGroup = { name: row[0], cards: [] };
+        } else if (!row[0]) {
+          // Empty row, so we're about to start a new section
+          newSection = true;
+          tempAddList.push(currAddListGroup);
+        } else {
           const cardDBCard = tempCardDB[row[0]];
-          tempAddList.push({
+          if (!cardDBCard) {
+            console.log('fuk');
+            const a = 3;
+          }
+          currAddListGroup.cards.push({
             id: cardDBCard.id,
             card: cardDBCard,
             setCode: row[1],
             releaseDate: row[2],
             notes: row[3],
           });
-        });
+        }
+      });
+      tempAddList.push(currAddListGroup); // Push the last group
       console.log('[STARTUP] Done!');
       return { cardDB: tempCardDB, flList: tempFLList, addList: tempAddList };
     })
