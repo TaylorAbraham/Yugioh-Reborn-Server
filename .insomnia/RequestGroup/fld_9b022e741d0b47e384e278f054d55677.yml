@@ -1,0 +1,10 @@
+_id: fld_9b022e741d0b47e384e278f054d55677
+type: RequestGroup
+parentId: wrk_d0107d9690c449b1be329e0d82c3727a
+modified: 1651431841684
+created: 1651431841684
+name: YGOPRO API
+description: ""
+environment: {}
+environmentPropertyOrder: null
+metaSortKey: -1651431841684

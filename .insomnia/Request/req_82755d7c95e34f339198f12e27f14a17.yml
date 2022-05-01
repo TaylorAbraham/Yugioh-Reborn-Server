@@ -1,0 +1,21 @@
+_id: req_82755d7c95e34f339198f12e27f14a17
+type: Request
+parentId: fld_9b022e741d0b47e384e278f054d55677
+modified: 1651431841682
+created: 1651431841682
+url: https://db.ygoprodeck.com/api/v7/cardinfo.php
+name: All Cards
+description: ""
+method: GET
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: -1651431841682
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

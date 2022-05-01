@@ -1,0 +1,21 @@
+_id: req_9ce72f9814b14414a7ba3aae1248b231
+type: Request
+parentId: fld_9b022e741d0b47e384e278f054d55677
+modified: 1651431841679
+created: 1651431841679
+url: https://db.ygoprodeck.com/api/v7/cardinfo.php?name=Goyo Guardian|Baby Dragon
+name: Specific Cards
+description: ""
+method: GET
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: -1651431841679
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

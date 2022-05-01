@@ -1,0 +1,11 @@
+_id: fld_089b9142f27b4b84a5a32af798a2cc56
+type: RequestGroup
+parentId: wrk_d0107d9690c449b1be329e0d82c3727a
+modified: 1651431844898
+created: 1651431831375
+name: Server
+description: ""
+environment:
+  server: localhost:8080
+environmentPropertyOrder: null
+metaSortKey: -1651431841734
