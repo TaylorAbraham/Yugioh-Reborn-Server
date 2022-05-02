@@ -272,7 +272,7 @@ export const createCardDB = async (): createCardDBReturn => {
               if (cardDBCard === undefined) {
                 return;
               }
-              currDecklist.mainDeck.push({ quantity: parseInt(row[0]), card: cardDBCard });
+              currDecklist.extraDeck.push({ quantity: parseInt(row[0]), card: cardDBCard });
             } else {
               state = 'newSection';
               tempDecklists.push(currDecklist);
