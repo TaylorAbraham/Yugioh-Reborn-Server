@@ -13,6 +13,7 @@ let startingUp = true;
 const startTime = Date.now();
 
 let cardDB: CardDB;
+let decklists: Decklists;
 let flList: FLList;
 let addList: AddList;
 
@@ -31,6 +32,7 @@ const setup = async (): Promise<void> => {
   console.log(`Server is starting up on port ${PORT}...`);
   const createdVals = await createCardDB();
   cardDB = createdVals.cardDB;
+  decklists = createdVals.decklists;
   flList = createdVals.flList;
   addList = createdVals.addList;
   startingUp = false;
@@ -57,6 +59,7 @@ app.get('/allcardinfo', (_req, res) => {
   } else {
     res.send({
       cardDB,
+      decklists,
       flList,
       addList,
     });
@@ -68,6 +71,14 @@ app.get('/carddb', (_req, res) => {
     sendStartupError(res);
   } else {
     res.send(cardDB);
+  }
+});
+
+app.get('/decklists', (_req, res) => {
+  if (startingUp) {
+    sendStartupError(res);
+  } else {
+    res.send(decklists);
   }
 });
 

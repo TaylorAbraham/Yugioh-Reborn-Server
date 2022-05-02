@@ -1,14 +1,9 @@
 import fetch from 'node-fetch';
-import {
-  LEGALITY,
-  LEGAL_SETS,
-  MAX_REQUEST_ATTEMPTS,
-  SHONEN_JUMP_CUTOFF,
-  YCSW_CUTOFF,
-} from './constants';
+import { LEGALITY, LEGAL_SETS, SHONEN_JUMP_CUTOFF, YCSW_CUTOFF } from './constants';
 
 const cardURL = 'https://db.ygoprodeck.com/api/v7/cardinfo.php';
-const flListRows = 'A2:E';
+const decklistsRows = 'Decklists!A2:B';
+const flListRows = 'Forbidden & Limited!A2:E';
 const addListRows = 'Added!A2:D';
 const getSheetsURL = (rows: string) =>
   `https://sheets.googleapis.com/v4/spreadsheets/1zJcbfYTG8HF_p3HmJYi_2M7kQ9JhpdJ8UcbJZc5H4ZM/values/${rows}?key=${
@@ -51,32 +46,43 @@ const isSheetsError = (json: GoogleSheetResponse): json is GoogleSheetError => {
   return (json as GoogleSheetError).error !== undefined;
 };
 
-export const createCardDB = async (
-  failedRequestCount = 0,
-): Promise<{ cardDB: CardDB; flList: FLList; addList: AddList }> => {
+type createCardDBReturn = Promise<{
+  cardDB: CardDB;
+  decklists: Decklists;
+  flList: FLList;
+  addList: AddList;
+}>;
+
+export const createCardDB = async (): createCardDBReturn => {
   console.log('[STARTUP] Fetching from YGOPRO API and Google Sheets...');
   if (!process.env.GOOGLE_API_KEY) {
     console.error('[FATAL] GOOGLE_API_KEY is not set.');
     process.exit(1);
   }
   const cardFetch = fetch(cardURL);
+  const decklistsFetch = fetch(getSheetsURL(decklistsRows));
   const flListFetch = fetch(getSheetsURL(flListRows));
   const addListFetch = fetch(getSheetsURL(addListRows));
   const {
     cardDB: tempCardDB,
+    decklists: tempDecklists,
     flList: tempFLList,
     addList: tempAddList,
-  } = await Promise.all([cardFetch, flListFetch, addListFetch])
-    .then(([cardRes, flRes, addListRes]) => {
+  } = await Promise.all([cardFetch, decklistsFetch, flListFetch, addListFetch])
+    .then(([cardRes, decklistsRes, flRes, addListRes]) => {
       console.log('[STARTUP] Done!');
       console.log('[STARTUP] Getting JSON from responses...');
       const cardJSON = cardRes.json() as Promise<{ data: YGOPROAPICard[] }>;
+      const decklistsJSON = decklistsRes.json() as Promise<GoogleSheetResponse>;
       const flJSON = flRes.json() as Promise<GoogleSheetResponse>;
       const addListJSON = addListRes.json() as Promise<GoogleSheetResponse>;
       console.log('[STARTUP] Done!');
-      return Promise.all([cardJSON, flJSON, addListJSON]);
+      return Promise.all([cardJSON, decklistsJSON, flJSON, addListJSON]);
     })
-    .then(([cardJSON, flListJSON, addListJSON]) => {
+    .then(([cardJSON, decklistsJSON, flListJSON, addListJSON]) => {
+      if (isSheetsError(decklistsJSON)) {
+        throw new Error(decklistsJSON.error.message);
+      }
       if (isSheetsError(flListJSON)) {
         throw new Error(flListJSON.error.message);
       }
@@ -86,8 +92,18 @@ export const createCardDB = async (
 
       const addedCardNames: Record<string, boolean> = {};
       const tempCardDB: CardDB = {};
+      const tempDecklists: Decklists = [];
       const tempFLList: FLList = { forbidden: [], limited: [], semiLimited: [], unlimited: [] };
       const tempAddList: AddList = [];
+
+      const getCardFromDBByName = (cardName: string): Card | undefined => {
+        const cardDBCard = tempCardDB[cardName];
+        if (!cardDBCard) {
+          console.error(`[WARNING] Could not find card in database matching name "${cardName}"`);
+          return undefined;
+        }
+        return cardDBCard;
+      };
 
       console.log('[STARTUP] Pulling names from Add List...');
       addListJSON.values
@@ -155,7 +171,10 @@ export const createCardDB = async (
       flListJSON.values
         .filter((row) => !!row[0])
         .map((row) => {
-          const cardDBCard = tempCardDB[row[0]];
+          const cardDBCard = getCardFromDBByName(row[0]);
+          if (cardDBCard === undefined) {
+            return;
+          }
           const cardObj = {
             id: cardDBCard.id,
             card: cardDBCard,
@@ -195,10 +214,9 @@ export const createCardDB = async (
           newSection = true;
           tempAddList.push(currAddListGroup);
         } else {
-          const cardDBCard = tempCardDB[row[0]];
-          if (!cardDBCard) {
-            console.log('fuk');
-            const a = 3;
+          const cardDBCard = getCardFromDBByName(row[0]);
+          if (cardDBCard === undefined) {
+            return;
           }
           currAddListGroup.cards.push({
             id: cardDBCard.id,
@@ -211,19 +229,79 @@ export const createCardDB = async (
       });
       tempAddList.push(currAddListGroup); // Push the last group
       console.log('[STARTUP] Done!');
-      return { cardDB: tempCardDB, flList: tempFLList, addList: tempAddList };
+
+      console.log('[STARTUP] Generating Decklists...');
+      let state: 'newSection' | 'description' | 'main' | 'extra' = 'newSection';
+      let currDecklist: Decklist = {
+        name: '',
+        description: '',
+        mainDeck: [],
+        extraDeck: [],
+      };
+      decklistsJSON.values.map((row) => {
+        switch (state) {
+          case 'newSection':
+            if (!row[0] && row[1]) {
+              currDecklist.name = row[1];
+              state = 'description';
+            }
+            break;
+          case 'description':
+            if (!row[0] && row[1]) {
+              currDecklist.description = row[1];
+              state = 'main';
+            }
+            break;
+          case 'main':
+            if (row[0] && row[1]) {
+              const cardDBCard = getCardFromDBByName(row[1]);
+              if (cardDBCard === undefined) {
+                return;
+              }
+              currDecklist.mainDeck.push({ quantity: parseInt(row[0]), card: cardDBCard });
+            } else {
+              state = 'extra';
+            }
+            break;
+          case 'extra':
+            if (row[0] && row[1]) {
+              const cardDBCard = getCardFromDBByName(row[1]);
+              if (cardDBCard === undefined) {
+                return;
+              }
+              currDecklist.mainDeck.push({ quantity: parseInt(row[0]), card: cardDBCard });
+            } else {
+              state = 'newSection';
+              tempDecklists.push(currDecklist);
+              currDecklist = {
+                name: '',
+                description: '',
+                mainDeck: [],
+                extraDeck: [],
+              };
+            }
+            break;
+        }
+      });
+      tempDecklists.push(currDecklist);
+      console.log('[STARTUP] Done!');
+
+      return {
+        cardDB: tempCardDB,
+        decklists: tempDecklists,
+        flList: tempFLList,
+        addList: tempAddList,
+      };
     })
     .catch((err) => {
-      console.error(`[ERROR] ${err}`);
-      if (failedRequestCount + 1 >= MAX_REQUEST_ATTEMPTS) {
-        console.error(
-          `[FATAL]: Exceeded the maximum number of ${MAX_REQUEST_ATTEMPTS} API call attempts for Google Sheets/YGOPRO API.`,
-        );
-        process.exit(1);
-      } else {
-        return createCardDB(failedRequestCount + 1);
-      }
+      console.error(`[FATAL] ${err}`);
+      process.exit(1);
     });
 
-  return { cardDB: tempCardDB, flList: tempFLList, addList: tempAddList };
+  return {
+    cardDB: tempCardDB,
+    decklists: tempDecklists,
+    flList: tempFLList,
+    addList: tempAddList,
+  };
 };
