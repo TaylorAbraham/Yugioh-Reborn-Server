@@ -96,7 +96,7 @@ export const createCardDB = async (): createCardDBReturn => {
       const tempFLList: FLList = { forbidden: [], limited: [], semiLimited: [], unlimited: [] };
       const tempAddList: AddList = [];
 
-      const getCardFromDBByName = (cardName: string): Card | undefined => {
+      const getCardDBCard = (cardName: string): Card | undefined => {
         const cardDBCard = tempCardDB[cardName];
         if (!cardDBCard) {
           console.error(`[WARNING] Could not find card in database matching name "${cardName}"`);
@@ -171,7 +171,7 @@ export const createCardDB = async (): createCardDBReturn => {
       flListJSON.values
         .filter((row) => !!row[0])
         .map((row) => {
-          const cardDBCard = getCardFromDBByName(row[0]);
+          const cardDBCard = getCardDBCard(row[0]);
           if (cardDBCard === undefined) {
             return;
           }
@@ -214,7 +214,7 @@ export const createCardDB = async (): createCardDBReturn => {
           newSection = true;
           tempAddList.push(currAddListGroup);
         } else {
-          const cardDBCard = getCardFromDBByName(row[0]);
+          const cardDBCard = getCardDBCard(row[0]);
           if (cardDBCard === undefined) {
             return;
           }
@@ -254,18 +254,21 @@ export const createCardDB = async (): createCardDBReturn => {
             break;
           case 'main':
             if (row[0] && row[1]) {
-              const cardDBCard = getCardFromDBByName(row[1]);
+              const cardDBCard = getCardDBCard(row[1]);
               if (cardDBCard === undefined) {
                 return;
               }
-              currDecklist.mainDeck.push({ quantity: parseInt(row[0]), card: cardDBCard });
+              currDecklist.mainDeck.push({
+                quantity: parseInt(row[0]),
+                card: cardDBCard,
+              });
             } else {
               state = 'extra';
             }
             break;
           case 'extra':
             if (row[0] && row[1]) {
-              const cardDBCard = getCardFromDBByName(row[1]);
+              const cardDBCard = getCardDBCard(row[1]);
               if (cardDBCard === undefined) {
                 return;
               }
