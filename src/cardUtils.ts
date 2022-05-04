@@ -231,10 +231,11 @@ export const createCardDB = async (): createCardDBReturn => {
       console.log('[STARTUP] Done!');
 
       console.log('[STARTUP] Generating Decklists...');
-      let state: 'newSection' | 'description' | 'main' | 'extra' = 'newSection';
+      let state: 'newSection' | 'description' | 'imgURL' | 'main' | 'extra' = 'newSection';
       let currDecklist: Decklist = {
         name: '',
         description: '',
+        imgURL: '',
         mainDeck: [],
         extraDeck: [],
       };
@@ -246,12 +247,22 @@ export const createCardDB = async (): createCardDBReturn => {
               state = 'description';
             }
             break;
+          // @ts-expect-error Because of explicit switch case fallthrough
           case 'description':
             if (!row[0] && row[1]) {
               currDecklist.description = row[1];
+              state = 'imgURL';
+              break;
+            } else {
               state = 'main';
             }
-            break;
+          // @ts-expect-error Because of explicit switch case fallthrough
+          case 'imgURL':
+            if (!row[0] && row[1]) {
+              currDecklist.imgURL = row[1];
+              state = 'main';
+              break;
+            }
           case 'main':
             if (row[0] && row[1]) {
               const cardDBCard = getCardDBCard(row[1]);
@@ -279,6 +290,7 @@ export const createCardDB = async (): createCardDBReturn => {
               currDecklist = {
                 name: '',
                 description: '',
+                imgURL: '',
                 mainDeck: [],
                 extraDeck: [],
               };

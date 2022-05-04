@@ -40,7 +40,8 @@ type DecklistItem = {
 
 type Decklist = {
   name: string;
-  description?: string;
+  description: string;
+  imgURL: string;
   mainDeck: DecklistItem[];
   extraDeck: DecklistItem[];
 };
