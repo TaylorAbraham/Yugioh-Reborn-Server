@@ -231,6 +231,18 @@ export const createCardDB = async (): createCardDBReturn => {
       console.log('[STARTUP] Done!');
 
       console.log('[STARTUP] Generating Decklists...');
+      const validateMainDeckCount = (decklist: Decklist): void => {
+        const mainDeckCount = decklist.mainDeck.reduce(
+          (count, mainDeckItem) => count + mainDeckItem.quantity,
+          0,
+        );
+        if (mainDeckCount < 40 || mainDeckCount > 60) {
+          console.log(
+            `[WARN] ${decklist.name} decklist contains ${mainDeckCount} cards in the main deck.`,
+          );
+        }
+      };
+
       let state: 'newSection' | 'description' | 'imgURL' | 'main' | 'extra' = 'newSection';
       let currDecklist: Decklist = {
         name: '',
@@ -286,6 +298,7 @@ export const createCardDB = async (): createCardDBReturn => {
               currDecklist.extraDeck.push({ quantity: parseInt(row[0]), card: cardDBCard });
             } else {
               state = 'newSection';
+              validateMainDeckCount(currDecklist);
               tempDecklists.push(currDecklist);
               currDecklist = {
                 name: '',
@@ -298,6 +311,7 @@ export const createCardDB = async (): createCardDBReturn => {
             break;
         }
       });
+      validateMainDeckCount(currDecklist);
       tempDecklists.push(currDecklist);
       console.log('[STARTUP] Done!');
 
