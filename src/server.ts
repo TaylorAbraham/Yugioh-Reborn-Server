@@ -18,7 +18,7 @@ let flList: FLList;
 let addList: AddList;
 
 /* SECTION: CORS */
-const allowedOrigins = ['https://ygo-reborn.xyz', 'http://localhost:3000'];
+const allowedOrigins = ['https://ygo-reborn.netlify.app', 'http://localhost:3000'];
 const corsOptions = {
   origin: allowedOrigins,
 };
