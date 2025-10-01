@@ -6,9 +6,7 @@ const decklistsRows = 'Decklists!A2:B';
 const flListRows = 'Forbidden & Limited!A2:E';
 const addListRows = 'Added!A2:D';
 const getSheetsURL = (rows: string) =>
-  `https://sheets.googleapis.com/v4/spreadsheets/1zJcbfYTG8HF_p3HmJYi_2M7kQ9JhpdJ8UcbJZc5H4ZM/values/${rows}?key=${
-    process.env.GOOGLE_API_KEY || ''
-  }`;
+  `https://sheets.googleapis.com/v4/spreadsheets/1zJcbfYTG8HF_p3HmJYi_2M7kQ9JhpdJ8UcbJZc5H4ZM/values/${rows}?key=${process.env.GOOGLE_API_KEY || ''}`;
 
 type YGOPROAPICard = {
   id: number;
@@ -233,7 +231,7 @@ export const createCardDB = async (): createCardDBReturn => {
       console.log('[STARTUP] Generating Decklists...');
       const validateMainDeckCount = (decklist: Decklist): void => {
         const mainDeckCount = decklist.mainDeck.reduce(
-          (count, mainDeckItem) => count + mainDeckItem.quantity,
+          (count, mainDeckEntry) => count + mainDeckEntry.quantity,
           0,
         );
         if (mainDeckCount < 40 || mainDeckCount > 60) {
@@ -243,38 +241,39 @@ export const createCardDB = async (): createCardDBReturn => {
         }
       };
 
-      let state: 'newSection' | 'description' | 'imgURL' | 'main' | 'extra' = 'newSection';
-      let currDecklist: Decklist = {
+      const emptyDecklist = {
         name: '',
         description: '',
         imgURL: '',
         mainDeck: [],
         extraDeck: [],
+        sideDeck: [],
       };
+      let state: 'info' | 'main' | 'extra' | 'side' = 'info';
+      let currDecklist: Decklist = JSON.parse(JSON.stringify(emptyDecklist));;
+
       decklistsJSON.values.map((row) => {
-        switch (state) {
-          case 'newSection':
-            if (!row[0] && row[1]) {
-              currDecklist.name = row[1];
-              state = 'description';
-            }
+        switch (row[0]) {
+          case 'Name':
+            currDecklist.name = row[1];
             break;
-          // @ts-expect-error Because of explicit switch case fallthrough
-          case 'description':
-            if (!row[0] && row[1]) {
-              currDecklist.description = row[1];
-              state = 'imgURL';
-              break;
-            } else {
-              state = 'main';
-            }
-          // @ts-expect-error Because of explicit switch case fallthrough
-          case 'imgURL':
-            if (!row[0] && row[1]) {
-              currDecklist.imgURL = row[1];
-              state = 'main';
-              break;
-            }
+          case 'Desc':
+            currDecklist.description = row[1];
+            break;
+          case 'Img':
+            currDecklist.imgURL = row[1];
+            break;
+          case 'Main':
+            state = 'main';
+            break;
+          case 'Extra':
+            state = 'extra';
+            break;
+          case 'Side':
+            state = 'side';
+            break;
+        }
+        switch (state) {
           case 'main':
             if (row[0] && row[1]) {
               const cardDBCard = getCardDBCard(row[1]);
@@ -285,8 +284,6 @@ export const createCardDB = async (): createCardDBReturn => {
                 quantity: parseInt(row[0]),
                 card: cardDBCard,
               });
-            } else {
-              state = 'extra';
             }
             break;
           case 'extra':
@@ -296,23 +293,26 @@ export const createCardDB = async (): createCardDBReturn => {
                 return;
               }
               currDecklist.extraDeck.push({ quantity: parseInt(row[0]), card: cardDBCard });
+            }
+            break;
+          case 'side':
+            if (row[0] && row[1]) {
+              const cardDBCard = getCardDBCard(row[1]);
+              if (cardDBCard === undefined) {
+                return;
+              }
+              currDecklist.sideDeck.push({ quantity: parseInt(row[0]), card: cardDBCard });
             } else {
-              state = 'newSection';
+              // End of the decklist
               validateMainDeckCount(currDecklist);
               tempDecklists.push(currDecklist);
-              currDecklist = {
-                name: '',
-                description: '',
-                imgURL: '',
-                mainDeck: [],
-                extraDeck: [],
-              };
+              currDecklist = JSON.parse(JSON.stringify(emptyDecklist));
+              state = 'info';
             }
             break;
         }
       });
-      validateMainDeckCount(currDecklist);
-      tempDecklists.push(currDecklist);
+
       console.log('[STARTUP] Done!');
 
       return {
