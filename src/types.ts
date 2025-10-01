@@ -14,7 +14,7 @@ type Card = {
   archetype?: string;
   sets: CardSetInfo[];
   images: CardImageInfo[];
-  legality: LEGALITY;
+  legality: number;
 };
 
 type CardDB = Record<string, Card>;
@@ -33,7 +33,7 @@ type CardImageInfo = {
   image_url_small: string;
 };
 
-type DecklistItem = {
+type DecklistEntry = {
   quantity: number;
   card: Card;
 };
@@ -42,13 +42,14 @@ type Decklist = {
   name: string;
   description: string;
   imgURL: string;
-  mainDeck: DecklistItem[];
-  extraDeck: DecklistItem[];
+  mainDeck: DecklistEntry[];
+  extraDeck: DecklistEntry[];
+  sideDeck: DecklistEntry[];
 };
 
 type Decklists = Decklist[];
 
-type FLListItem = {
+type FLListEntry = {
   id: number;
   card: Card;
   legality: string;
@@ -57,13 +58,13 @@ type FLListItem = {
 };
 
 type FLList = {
-  forbidden: FLListItem[];
-  limited: FLListItem[];
-  semiLimited: FLListItem[];
-  unlimited: FLListItem[];
+  forbidden: FLListEntry[];
+  limited: FLListEntry[];
+  semiLimited: FLListEntry[];
+  unlimited: FLListEntry[];
 };
 
-type AddListItem = {
+type AddListEntry = {
   id: number;
   card: Card;
   setCode: string;
@@ -73,7 +74,7 @@ type AddListItem = {
 
 type AddListGroup = {
   name: string;
-  cards: AddListItem[];
+  cards: AddListEntry[];
 };
 
 type AddList = AddListGroup[];
